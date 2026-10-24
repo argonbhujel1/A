@@ -1,0 +1,663 @@
+# MEGA HOTEL — COMPLETE NATIVE ANDROID FOOD DELIVERY APP
+
+Build a complete, production-oriented native Android food delivery application for Megha Hotel, Urlabari, Morang, Nepal, using Kotlin and Jetpack Compose.
+
+The application should provide a reliable food ordering experience comparable in functionality to Foodmandu and Jaldimai, with a premium, simple, mobile-friendly interface.
+
+This is a RESTAURANT FOOD DELIVERY APP, NOT a hotel room booking app.
+
+## 1. Core Project Requirements
+
+- Platform: Native Android APK.
+- Language: Kotlin.
+- UI: Jetpack Compose.
+- Architecture: MVVM, repository pattern, and clean separation of UI, business logic, networking, and data.
+- Backend: Reuse the existing Flask backend and its APIs wherever possible.
+- Database: Inspect the existing database and reuse it. If the existing system uses Turso/libSQL, remain compatible with it.
+- Image storage: Reuse the existing persistent image storage, such as Cloudinary, if configured.
+- Currency: NPR (Rs.).
+- Location: Urlabari, Morang, Nepal.
+- Branding: Premium green, cream, and gold.
+- Languages: English and Nepali, with a language selector.
+- Customer experience: Guest ordering and authenticated customer accounts.
+- Staff experience: Admin, kitchen/order staff, and delivery staff within the same APK.
+- Delivery staff: Support two staff accounts, with the ability for Admin to add or deactivate staff later.
+- Do not build a separate Admin website.
+- Do not replace or damage the existing website or production database.
+- Do not delete existing records or migrate production data destructively.
+- Do not invent APIs, credentials, provider configuration, payment verification, GPS locations, or order statuses.
+- Deliver functional code and backend integration, not just attractive UI mockups.
+
+First inspect the existing backend routes, database schema, menu website, image URLs, authentication setup, and deployment configuration. Reuse working components and document anything that cannot be accessed.
+
+## 2. Existing Megha Hotel Menu — Initial Data Source
+
+Use this website as the reference for the actual restaurant menu:
+
+https://meghahotel.vercel.app/menu
+
+Import the currently published menu items, descriptions, categories, prices, and real food image URLs wherever the existing website exposes them.
+
+The currently visible menu includes items such as:
+
+- Chicken Wings
+- Steam Momo (Chicken)
+- Fry Momo (Veg)
+- Jhol Momo
+- Chicken Chowmein
+- Veg Chowmein
+- Chicken Biryani
+- Thukpa
+- fried Rice
+- Coke, sprite, fanta
+- chiken lolipop
+- chicken Roast
+- sausage
+
+Use the website's actual product data, not fabricated products or unrelated stock photos.
+
+Important menu import rules:
+- Inspect the page's actual data source or existing backend/API if accessible.
+- Preserve the original item names, descriptions, prices, category relationships, and image URLs where available.
+- If the website uses a different API or database, do not assume that it is the same as the Android app backend.
+- If direct import is unavailable, generate an import script or a clear importable data file using verified information.
+- Do not silently invent missing prices, images, or descriptions.
+- Flag suspicious or inconsistent source values for Admin review before publishing.
+- Treat imported data as initial menu data, not permanently hardcoded app content.
+- After initial import, all menu data must be managed by the Admin through the backend.
+- Never overwrite the existing website menu or its database merely to populate the Android app.
+
+Menu reference: https://meghahotel.vercel.app/menu
+
+## 3. Splash Screen and BAM Studio Branding
+
+Create a premium branded launch experience.
+
+- Show the splash screen for approximately five seconds on a cold app launch.
+- Display an image that Admin can upload, replace, preview, publish, or remove through the app's Admin panel.
+- Allow Admin to set the splash image from the phone gallery.
+- Store the image in persistent remote storage.
+- Store splash settings and the published image URL in the backend.
+- Support configurable background colors and optional text.
+- Display "Engineered by BAM Studio" as the development credit.
+- Show "Technology by BAM Studio" in the appropriate app footer.
+- Link the footer credit to https://bamstudio.argan.com.np/.
+- Cache the last published splash image for offline fallback.
+- If the remote image fails to load, show a built-in branded fallback.
+- Apply updated splash settings without requiring an APK rebuild or reinstall.
+- Do not replay the five-second splash every time the user navigates between screens.
+- Do not unnecessarily delay subsequent launches if the app is already active.
+
+Only authorized Admins can change published splash settings.
+
+## 4. Authentication and Entry Flow
+
+On launch:
+
+1. Show the splash screen.
+2. Restore an existing valid session if available.
+3. Otherwise open the customer home/menu screen.
+4. Let customers browse food without logging in.
+5. Provide Sign In/Profile access for customers who want an account.
+6. Keep Admin and Staff login separate from customer account screens.
+
+### Admin login
+
+Implement a secure Admin login screen using:
+
+- Email.
+- Password.
+- Password visibility toggle.
+- Sign In button.
+- Loading indicators.
+- Input validation.
+- Clear authentication error messages.
+- Password recovery only if a real secure backend recovery flow exists.
+
+Do not provide public Admin registration.
+
+Create a premium mobile-adapted login design with a brand visual area, clean form, and prominent Sign In button. Do not include a public Create Account link on the Admin login page.
+
+Authenticate against the real backend. Verify Admin permissions server-side.
+
+### Customer login options
+
+Show:
+
+- Continue as Guest.
+- Continue with Google.
+- Continue with Facebook.
+- Continue with X (formerly Twitter).
+
+Google, Facebook, and X login must remain visible but unavailable until each provider has been genuinely configured and tested.
+
+For each unconfigured provider:
+- Display "Available in a future update" or "Coming Soon".
+- Use a disabled, non-interactive button.
+- Never pretend authentication succeeded.
+- Never create a fake account or session.
+- On tap, where informational interaction is supported, display:
+  "यो सुविधा आगामी अपडेटमा उपलब्ध हुनेछ। अहिले Guest का रूपमा अर्डर गर्नुहोस्।"
+
+Use explicit configuration flags such as GOOGLE_LOGIN_ENABLED=false, FACEBOOK_LOGIN_ENABLED=false, and X_LOGIN_ENABLED=false in the appropriate secure configuration architecture.
+
+Do not place provider secrets inside the APK. When providers are enabled later, implement their real supported authentication flows, callback configuration, backend token verification, and account linking.
+
+### Guest ordering
+
+Guest checkout must work now, even when all social providers are disabled.
+
+Never require social login or account creation merely to browse the menu or place an order.
+
+## 5. Customer Home and Menu
+
+Create a polished restaurant ordering experience.
+
+Home screen:
+- Restaurant branding.
+- Search bar.
+- Food categories.
+- Featured foods.
+- Popular foods.
+- Promotional banners.
+- Active offers.
+- Recently added items.
+- Cart shortcut.
+- Order tracking shortcut for eligible orders.
+- Profile/sign-in shortcut.
+
+Menu screen:
+- Display real backend menu data.
+- Search by item name.
+- Support English and Nepali search where data is available.
+- Filter by category.
+- Show food image, name, price, discount, availability, and relevant labels.
+- Open food detail screens.
+- Add items to cart.
+- Show sold-out items clearly.
+- Never allow an unavailable item to be purchased.
+
+Fetch menu data from the backend. Do not hardcode production food lists, image URLs, or prices in Kotlin source files.
+
+Use caching for performance, refresh when appropriate, and show an offline indicator if the displayed menu may be outdated.
+
+## 6. Complete Admin Food Management
+
+Create a functional Admin panel inside the Android app.
+
+Admin must be able to:
+
+- Add new food items.
+- Edit existing food items.
+- Publish and unpublish menu items.
+- Archive or delete items with confirmation.
+- Upload, preview, replace, and remove food images.
+- Choose images from the phone gallery or camera.
+- Set English and Nepali item names.
+- Set English and Nepali descriptions.
+- Set selling price in NPR.
+- Set optional discounted price.
+- Configure discount start and end dates.
+- Create, rename, reorder, and delete categories.
+- Mark vegetarian or non-vegetarian.
+- Mark featured, popular, or recommended.
+- Set preparation time.
+- Mark items available, sold out, or temporarily unavailable.
+- Set stock quantity if stock management is enabled.
+- Search and filter the Admin menu.
+- Preview how the item will look to customers.
+- View the last-updated timestamp.
+- Publish changes to the backend.
+
+All fields must persist in the database.
+
+### Image storage
+
+- Use the existing persistent image storage if available.
+- Reuse Cloudinary configuration if the project already uses Cloudinary.
+- Save stable image URLs and metadata in the backend database.
+- Do not store image files only on the Admin's phone.
+- Do not rely on temporary upload URLs.
+- Validate file types and sizes.
+- Compress and resize images appropriately.
+- Show upload progress and errors.
+- Support retrying failed uploads.
+
+### Synchronization
+
+After Admin changes a food item, price, image, promotion, or availability:
+- Save the change to the backend.
+- Update customer menu data without requiring APK reinstall.
+- Refresh affected screens.
+- Use authenticated realtime notifications if configured; otherwise use sensible refresh or polling.
+- Keep cart and checkout prices consistent with server data.
+- Do not change the agreed price of an already confirmed order silently.
+
+## 7. Admin Promotions and Settings
+
+Allow Admin to manage:
+
+- Home banners.
+- Featured items.
+- Discount prices.
+- Coupon codes.
+- Promotion validity dates.
+- Coupon usage limits.
+- Minimum order requirements.
+- Promotional descriptions and images.
+- Delivery settings.
+- Minimum order amount.
+- Delivery charge rules.
+- Restaurant availability.
+- Splash image and splash settings.
+- Staff accounts and roles.
+
+Validate promotions and coupons on the backend. Expired promotions must not be accepted at checkout.
+
+## 8. Cart and Checkout
+
+Implement a complete shopping cart.
+
+Features:
+- Add food items.
+- Increase/decrease quantity.
+- Remove items.
+- Display item images.
+- Display current unit prices.
+- Display subtotal.
+- Apply eligible coupon codes.
+- Display discounts.
+- Display delivery charges.
+- Display final payable amount.
+- Show unavailable items.
+- Ask the customer to review price changes before order confirmation.
+
+The server must calculate the authoritative total using current menu prices, valid discounts, availability, delivery rules, and coupon eligibility.
+
+Never trust prices submitted by the Android client.
+
+## 9. Guest Checkout — Complete Delivery Information
+
+Allow guests to place orders without signing in.
+
+Collect the necessary information:
+
+Required:
+- Full name.
+- Active contact phone number.
+- Complete delivery address.
+- Locality/area.
+- Selected items and quantities.
+- Payment method.
+- Delivery map pin or GPS coordinates where available, subject to permission.
+
+Optional where appropriate:
+- Email address.
+- Alternative phone number.
+- Nearby landmark.
+- Delivery instructions.
+- Special food instructions.
+
+Provide:
+- Validation for required fields.
+- Suitable Nepali phone number validation.
+- Address/map picker.
+- Manual address entry when GPS is unavailable or permission is denied.
+- Order summary before confirmation.
+- Unique order number.
+- Order confirmation screen.
+- Clear payment instructions.
+- Secure guest order tracking.
+
+Use actual customer-entered information. Do not invent names, phone numbers, addresses, or GPS coordinates.
+
+Create an unpredictable, secure guest tracking token. Access to guest order details must require the valid token or another secure ownership-verification mechanism. An order number alone must not expose private order details.
+
+## 10. Customer Account and Social Profile
+
+When a customer eventually signs in using a configured provider:
+
+- Prefill the name from verified provider data when available.
+- Prefill verified email only when the provider supplies it and verification is established.
+- Show the provider profile picture where available.
+- Ask for missing contact information needed to deliver an order.
+- Let the customer review and edit their details.
+- Save confirmed profile changes to the backend.
+- Do not assume Google, Facebook, or X provides a verified phone number or residential address.
+- Do not overwrite saved customer information with empty or outdated provider data.
+
+Support secure account linking so multiple verified login methods can be associated with one customer account. Do not merge accounts automatically based only on a matching email string or phone number.
+
+## 11. Customer Profile Page
+
+Create a complete Profile section containing:
+
+### Profile overview
+- Profile picture.
+- Full name.
+- Email and verification status where available.
+- Phone number.
+- Edit Profile action.
+
+### Edit profile
+- Change name.
+- Change phone number.
+- Change email when supported.
+- Change profile picture through the phone gallery or camera.
+- Save updates to the backend.
+- Show upload progress and validation errors.
+- Persist profile data across app restarts and supported devices.
+
+Store profile images in persistent image storage. Profile pictures must remain separate from food images.
+
+### Change password
+- Show the option for accounts that have a password credential.
+- Require the current password when appropriate.
+- Validate the new password.
+- Use secure backend password hashing.
+- Support password reset only through a real verified recovery flow.
+- For social-only accounts, explain that the account has no app password and offer password setup only if a secure backend flow exists.
+
+### Saved addresses
+- Add addresses.
+- Edit addresses.
+- Delete addresses with confirmation.
+- Set a default address.
+- Save optional GPS coordinates.
+- Select an address during checkout.
+
+### Order history
+Display only orders belonging to the authenticated customer.
+
+Each order entry should show:
+- Order number.
+- Date and time.
+- Food item images.
+- Food item names.
+- Quantities.
+- Unit prices at the time of order.
+- Subtotal.
+- Discounts.
+- Delivery fee.
+- Final total.
+- Payment method.
+- Current or final status.
+- Track Order action when eligible.
+- Order detail page.
+- Reorder action.
+
+Reordering must check the current menu, availability, and prices. Never silently reuse an outdated price.
+
+### Account actions
+- Logout.
+- Appropriate account deletion/request deletion workflow if implemented.
+- Securely clear session tokens on logout.
+
+## 12. Food Images Across the Entire App
+
+Use each food item's actual backend image URL in:
+
+- Home screen.
+- Food category list.
+- Search results.
+- Food detail.
+- Cart.
+- Checkout.
+- Order confirmation.
+- Order history.
+- Order details.
+- Reorder screen.
+
+Provide:
+- Image loading placeholders.
+- Correct image scaling.
+- Caching.
+- Error fallback images.
+- Stable persistent URLs.
+
+Do not use one generic photo for every food. Do not fabricate product images and represent them as real restaurant photos.
+
+Save an order-item snapshot when an order is placed, including the item name, image reference/URL, quantity, and agreed unit price. Admin menu edits must not unexpectedly rewrite historical receipts.
+
+## 13. Real Order Management
+
+Provide a backend-backed order lifecycle, for example:
+
+- Pending confirmation.
+- Confirmed.
+- Preparing.
+- Ready for pickup.
+- Assigned for delivery.
+- Picked up.
+- On the way.
+- Delivered.
+- Cancelled.
+
+Use only valid status transitions. The backend must enforce which role can change each status.
+
+Customer order screens should refresh their status from the backend. Use realtime updates where properly configured, or polling as a documented fallback.
+
+Provide clear timestamps and payment status.
+
+Do not mark an order as paid or delivered without valid evidence or an authorized backend operation.
+
+## 14. Live Google Maps Delivery Tracking
+
+Implement real delivery tracking, not a simulated moving marker.
+
+### Customer experience
+- Display a Track Order action for an eligible active order.
+- Show a Google Map with the restaurant, customer destination, and actual assigned delivery rider position.
+- Display the latest rider location.
+- Update the map without requiring a manual refresh.
+- Show the last location update time.
+- Show order status.
+- Display route/polyline and ETA only when the relevant mapping and routing services are properly configured.
+- If live location or ETA is unavailable, explain this honestly and display the latest known status.
+
+### Delivery staff
+- Provide a My Deliveries screen.
+- Display only assigned deliveries.
+- Allow staff to accept or start an authorized delivery.
+- Request location permission when necessary.
+- Use an Android foreground location service with a visible notification while actively sharing location, subject to Android platform requirements.
+- Send real GPS coordinates to an authenticated backend at a reasonable interval, such as every 5–10 seconds when conditions and system restrictions allow.
+- Stop location sharing after delivery completion, cancellation, or other defined termination conditions.
+- Do not track staff outside authorized active deliveries.
+- Handle denied permissions, lost GPS, poor connectivity, and battery restrictions.
+
+### Admin
+- Assign or reassign orders to the two delivery staff members.
+- View the latest reported location for active deliveries.
+- View assignment and delivery status.
+- Restrict location access to authorized roles.
+
+### Map configuration
+- Use the official Google Maps SDK for Android.
+- Document Google Cloud project configuration, Android API key restrictions, package name, signing certificate fingerprints, and any required billing or API enablement.
+- Store secrets appropriately and restrict API keys.
+- Do not fabricate coordinates, rider movements, or ETA.
+- Ensure backend authorization prevents a customer from tracking another customer's order.
+
+If the backend does not provide realtime delivery events, implement an appropriate authenticated polling or realtime transport strategy and document its configuration.
+
+## 15. Delivery Charge and Location
+
+Implement configurable delivery rules:
+
+- Minimum order amount.
+- Base delivery charge.
+- Distance-based charge where required.
+- Delivery radius or supported delivery area.
+- Clear address confirmation.
+- Manual address fallback.
+- Customer-visible charge breakdown before checkout.
+
+Do not calculate distance charges from fabricated coordinates. If a configured routing or distance service is unavailable, use the documented fallback rule and show the customer the charge before confirmation.
+
+Admin must be able to change supported delivery settings without requiring an APK update.
+
+## 16. Payment Methods
+
+Support:
+- Cash on Delivery.
+- Restaurant-approved QR payment flow if configured.
+
+For QR payments:
+- Display the actual configured payment QR.
+- Show the amount and order reference.
+- Allow the customer to submit transaction reference or payment proof if that workflow is enabled.
+- Keep the payment status pending until an authorized verification process confirms it.
+- Let authorized staff/Admin verify or reject proof.
+- Do not claim automatic bank verification unless a real payment gateway or bank integration exists.
+
+Never store sensitive payment credentials in the APK.
+
+## 17. Staff and Role Permissions
+
+Use the same APK for all roles.
+
+### Admin
+- Manage foods and categories.
+- Manage images and prices.
+- Manage promotions.
+- Manage splash settings.
+- Manage orders.
+- Manage delivery assignments.
+- Manage staff accounts.
+- Configure delivery settings.
+- Review permitted reports.
+
+### Kitchen/Order Staff
+- View permitted order queues.
+- Update allowed preparation statuses.
+- View only the customer details needed for order fulfilment.
+
+### Delivery Staff
+- View assigned deliveries.
+- Access necessary delivery address and contact details.
+- Update permitted delivery statuses.
+- Share GPS location only during active authorized deliveries.
+
+The backend must enforce every role and permission. Hiding a button in the UI is not sufficient security.
+
+## 18. Backend and Database Integration
+
+Inspect and reuse the existing Flask backend and production data.
+
+Implement or extend suitable endpoints for:
+- Menu and categories.
+- Food item CRUD.
+- Image uploads.
+- Promotions and coupons.
+- Splash settings.
+- Customer authentication.
+- Customer profiles.
+- Profile image uploads.
+- Saved addresses.
+- Password management where supported.
+- Guest checkout.
+- Secure order retrieval.
+- Customer order history.
+- Order status transitions.
+- Staff management.
+- Delivery assignment.
+- Active delivery GPS updates.
+- Customer live tracking.
+- Payment status and verification.
+
+Use HTTPS in production, secure token handling, input validation, server-side price calculations, rate limiting, and safe error handling.
+
+Do not expose database credentials, admin passwords, social provider secrets, or private customer details in the APK.
+
+If the existing database uses Turso/libSQL, implement a compatible integration rather than assuming PostgreSQL-specific functionality.
+
+Create safe database migrations. Preserve existing orders and records. Do not reset production data to simplify development.
+
+If an existing API route is unavailable or incompatible, report it and implement a backward-compatible solution where possible.
+
+## 19. UI and Navigation
+
+Use a premium, modern, uncluttered interface with the Mega Hotel green, cream, and gold palette.
+
+Provide clear navigation for:
+- Home.
+- Search/Menu.
+- Cart.
+- Orders.
+- Profile.
+
+Keep the customer ordering journey simple. Guest customers must be able to complete an order without social login.
+
+Show suitable loading, empty, success, validation, offline, and error states throughout the app.
+
+Support different Android screen sizes and accessibility-friendly touch targets.
+
+## 20. Reliability, Privacy, and Security
+
+- Do not trust customer-supplied prices.
+- Do not expose other customers' orders.
+- Do not accept unauthorized Admin or Staff actions.
+- Do not store plaintext passwords.
+- Use secure session storage.
+- Expire or revoke sessions appropriately.
+- Handle duplicate order submissions and network retries safely.
+- Prevent accidental duplicate orders through idempotency or an equivalent backend mechanism.
+- Avoid collecting unnecessary personal information.
+- Request permissions only when required.
+- Do not track customer or staff locations without the appropriate feature context and permission.
+- Protect logs from tokens, passwords, and sensitive personal details.
+- Show clear errors without leaking internal stack traces.
+
+## 21. Testing and Acceptance Criteria
+
+Implement tests for the backend and the Android app.
+
+Verify that:
+
+1. The app opens with the correct splash image and branding.
+2. Admin can log in with valid email and password.
+3. Invalid Admin credentials are rejected.
+4. Admin can add a food item with a real image and price.
+5. Admin can replace an image or change a price.
+6. Customer devices receive menu updates without reinstalling the APK.
+7. Imported menu items match the source website data where verified.
+8. Guest checkout collects all required details.
+9. A guest can place an order while Google, Facebook, and X remain disabled.
+10. Disabled social login cannot create a session.
+11. Logged-in customers can edit profiles and manage saved addresses.
+12. Password management works only for accounts with supported password credentials.
+13. Customers see only their own order history.
+14. Food images appear consistently throughout the ordering flow.
+15. Historical order snapshots retain their agreed prices.
+16. Server-side checkout rejects invalid prices, discounts, and unavailable items.
+17. Delivery staff can see only their assigned orders.
+18. Real GPS updates are visible to authorized customers on the tracking map.
+19. GPS sharing stops after the relevant delivery ends.
+20. Unauthorized users cannot access private tracking information or privileged APIs.
+21. COD and configured QR payment workflows show correct payment states.
+22. Sessions, offline mode, errors, and retries are handled safely.
+23. Existing production data remains intact.
+
+## 22. Implementation and Delivery Instructions
+
+Work incrementally but complete the actual application.
+
+First:
+1. Inspect the existing project, backend, database, and menu website.
+2. Identify existing functionality and reusable code.
+3. Document required configuration and missing integrations.
+4. Implement the database/API changes safely.
+5. Implement the Android UI and real API integration.
+6. Run available automated tests and build checks.
+7. Fix compilation errors and integration issues.
+8. Document how to configure required environment variables and Android permissions.
+9. Explain how to configure Google Maps and future social providers.
+10. Provide clear Windows/Android Studio steps to build, install, and test the APK.
+
+Do not claim that an API, social provider, payment integration, live tracking service, or production feature is functional until it has been configured and tested.
+
+If the full project cannot be completed in one pass, continue in smaller implementation steps while preserving the architecture and existing data. Clearly identify incomplete features instead of silently replacing them with mock data.
+
+FINAL GOAL:
+A working native Mega Hotel Android food delivery app in which the Admin controls the menu, prices, images, promotions, splash image, staff, and orders; customers can order as guests or use supported accounts; customer profiles and order histories persist; and active deliveries can be tracked on Google Maps using real location data.
